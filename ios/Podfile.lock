@@ -1,0 +1,28 @@
+PODS:
+  - esptouch_flutter (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - wifi_info_flutter (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - esptouch_flutter (from `.symlinks/plugins/esptouch_flutter/ios`)
+  - Flutter (from `Flutter`)
+  - wifi_info_flutter (from `.symlinks/plugins/wifi_info_flutter/ios`)
+
+EXTERNAL SOURCES:
+  esptouch_flutter:
+    :path: ".symlinks/plugins/esptouch_flutter/ios"
+  Flutter:
+    :path: Flutter
+  wifi_info_flutter:
+    :path: ".symlinks/plugins/wifi_info_flutter/ios"
+
+SPEC CHECKSUMS:
+  esptouch_flutter: e73da8791abdc4aa4a24ccda75f9505e1aa05474
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  wifi_info_flutter: 55d4c2469034f5b5c38063ccefa62f708a503a2b
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.10.0
