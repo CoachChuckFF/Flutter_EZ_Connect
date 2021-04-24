@@ -7,11 +7,7 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
-// TODO: Change this to match your WiFi network. Do not commit. This is a simple demo app, please be careful when handling your passwords.
-const hc_ssid = 'blizznet';
-const hc_bssid = '4:18:d6:22:cf:cf';
 const hc_pass = 'destroyer';
-
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
@@ -21,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String buttonText = "Start";
-  String resultText = '$hc_ssid | $hc_bssid | $hc_pass';
+  String resultText = 'Connect me daddy';
   bool canRun = true;
 
 
