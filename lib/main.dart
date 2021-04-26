@@ -51,10 +51,29 @@ class _MyAppState extends State<MyApp> {
 // ESP Touch
 // https://pub.dev/packages/esptouch_flutter
 // 
+// 
+// 
+// 
+// 
+// OPERATION
+// 
+// On SoC-It start, if no SSID is found in storage - it will start EZ connect (Assuming SoC-It is in STA mode)
+// SoC-It will now default to STA mode, therefore, all new SoC-Its will start in EZ connect
+// 
+// When SoC-It is trying to EZ connect it will flash fast green, when you see this, runEZConnect()
+// 
+// Once a connection is established EZ connect will disable - until the SSID stored in the SoC-It is cleared
+// 
+// To re-establish a connection:
+// NVS_CONFIG SSID = ""
+// NVS_CONNECTION = External (STA)
+// Reboot SoC-It
+// 
+
 
   void runEZConnect({
-    @required String ssid,
-    @required String bssid,
+    @required String ssid, //await getCurrentSSID();
+    @required String bssid, //await getCurrentBSSID();
     @required String pass,
     Duration timoutDuration,
     Function onTimeout,
@@ -129,11 +148,47 @@ class _MyAppState extends State<MyApp> {
       return WifiInfo().getWifiBSSID();
     }
   }
+
+  // //Example Usage
+  // void exampleRunEZConnect() async{
+  //   String ssid = await getCurrentSSID();
+  //   String bssid = await getCurrentBSSID();
+
+  //   runEZConnect(
+  //     ssid: ssid,
+  //     bssid: bssid,
+  //     pass: hc_pass,
+  //     onTimeout: (){
+  //       print("Timeout");
+  //       setState(() {
+  //         canRun = true;
+  //         buttonText = "Start";
+  //         resultText = "Timeout";
+  //       });
+  //     },
+  //     onConnected: (result){
+  //       print("Connected: " + result.ip);
+  //       setState(() {
+  //         canRun = true;
+  //         buttonText = "Start";
+  //         resultText = "Connected!";
+  //       });
+  //     },
+  //     onStart: (){
+  //       print("Started");
+  //       setState(() {
+  //         canRun = false;
+  //         buttonText = "Working";
+  //         resultText = '$ssid | $bssid | $hc_pass';
+  //       });
+  //     }
+  //   );
+  // }
+
 // ------------------------- End EZ Connect Code -----------------
 
-
-  //Example usage
-  void executeEsptouch() async{
+  //Example Usage
+  void exampleRunEZConnect() async{
     String ssid = await getCurrentSSID();
     String bssid = await getCurrentBSSID();
 
@@ -168,6 +223,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -182,7 +238,7 @@ class _MyAppState extends State<MyApp> {
               Container(height: 5,),
               OutlineButton(
                 onPressed: (){
-                  if(canRun) executeEsptouch();
+                  if(canRun) exampleRunEZConnect();
                 },
                 child: Text(buttonText),
               ),
