@@ -38,7 +38,6 @@ import 'dart:io';
 // 
 // 
 // 
-// 
 // OPERATION
 // 
 // On SoC-It start, if no SSID is found in storage - it will start EZ connect (Assuming SoC-It is in STA mode)
@@ -52,6 +51,16 @@ import 'dart:io';
 // NVS_CONFIG SSID = ""
 // NVS_CONNECTION = External (STA)
 // Reboot SoC-It
+// 
+// 
+// Flutter Code
+// 
+// BlizzardEZConnectManager _manager = BlizzardEZConnectManager({params});
+// 
+// _manager.run(pass, {params});
+// _manager.cancel();
+// _manager.dispose();
+// 
 // 
 
 class BlizzardEZConnectResult {
@@ -124,7 +133,16 @@ class BlizzardEZConnectManager {
   int deviceCount = 1;
   int devicesLeft = 1;
 
-  Future<void> runEZConnect(
+  void cancel(){
+    _stopEZConnect();
+    if(onCancel != null) onCancel();
+  }
+
+  void dispose(){
+    _stopEZConnect();
+  }
+
+  Future<void> run(
     String pass,
     {
       String ssid, //await getCurrentSSID();
@@ -181,15 +199,6 @@ class BlizzardEZConnectManager {
   void _setWatchdog(){
     _stopEZConnect();
     if(onTimeout != null) onTimeout();
-  }
-
-  void cancelEZConnect(){
-    _stopEZConnect();
-    if(onCancel != null) onCancel();
-  }
-
-  void dispose(){
-    _stopEZConnect();
   }
 
   void _stopEZConnect(){

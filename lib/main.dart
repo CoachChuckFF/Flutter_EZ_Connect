@@ -156,10 +156,10 @@ class _MyAppState extends State<MyApp> {
                   ),
                   OutlinedButton(
                     onPressed: (){
-                      _ezConnectManager.runEZConnect(_passwordController.text, deviceCount: _deviceCount);
+                      _ezConnectManager.run(_passwordController.text, deviceCount: _deviceCount);
                     },
                     onLongPress: (){
-                      _ezConnectManager.cancelEZConnect();
+                      _ezConnectManager.cancel();
                     },
                     child: Text(
                       _buttonText,
