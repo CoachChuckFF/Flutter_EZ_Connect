@@ -57,16 +57,30 @@ import 'dart:io';
 class BlizzardEZConnectResult {
   final String ip;
   final String bssid;
+  final int devicesLeft;
+  final int totalDevices;
 
   BlizzardEZConnectResult({
     this.ip,
     this.bssid,
+    this.totalDevices,
+    this.devicesLeft,
   });
 
-  factory BlizzardEZConnectResult.fromESP(ESPTouchResult data){
+  int get deviceIndex {
+    return totalDevices - devicesLeft - 1;
+  }
+
+  int get deviceNumber {
+    return totalDevices - devicesLeft;
+  }
+
+  factory BlizzardEZConnectResult.fromESP(ESPTouchResult data, int totalDevices, int devicesLeft){
     return BlizzardEZConnectResult(
       ip: data.ip ?? "",
       bssid: data.bssid ?? "",
+      totalDevices: totalDevices,
+      devicesLeft: devicesLeft,
     );
   }
 
@@ -78,6 +92,7 @@ class BlizzardEZConnectResult {
     string += "Status: ${this.ip.isNotEmpty ? 'SUCCESS' : 'FAIL'}\n"; 
     string += "IP: ${this.ip}\n"; 
     string += "BSSID: ${this.bssid}\n"; 
+    string += "Devices Left: ${this.bssid}\n"; 
     string += "---------------------------------\n\n"; 
 
     return string;
@@ -90,6 +105,7 @@ class BlizzardEZConnectManager {
   final Function(String, String) onStart;
   final Function onCancel;
   final Function onTimeout;
+  final Function onSuccess;
   final Function(BlizzardEZConnectResult) onConnected;
 
   BlizzardEZConnectManager({
@@ -98,21 +114,26 @@ class BlizzardEZConnectManager {
     this.onCancel,
     this.onTimeout,
     this.onConnected,
+    this.onSuccess,
   });
 
-  bool isRunning = false;
   StreamSubscription<ESPTouchResult> _ezConnectController;
   Timer _ezConnectWatchdog;
+
+  bool isRunning = false;
+  int deviceCount = 1;
+  int devicesLeft = 1;
 
   Future<void> runEZConnect(
     String pass,
     {
       String ssid, //await getCurrentSSID();
       String bssid, //await getCurrentBSSID();
+      int deviceCount = 1, 
   }) async {
     Stream<ESPTouchResult> stream;
     ESPTouchTask task;
-    
+
     if(isRunning){
       print("EZ Connect Already Running");
       return;
@@ -125,6 +146,9 @@ class BlizzardEZConnectManager {
       bssid = await BlizzardEZConnectManager.getCurrentBSSID();
     }
 
+    this.deviceCount = deviceCount;
+    this.devicesLeft = deviceCount;
+
     //config EZConnect
     task = ESPTouchTask(ssid: ssid, bssid: bssid, password: pass);
 
@@ -133,20 +157,30 @@ class BlizzardEZConnectManager {
 
     //listen to EZConnect
     _ezConnectController = stream.listen((result){
-      _stopEZConnect();
-      if(onConnected != null) onConnected(BlizzardEZConnectResult.fromESP(result));
+      devicesLeft--;
+      if(onConnected != null) onConnected(BlizzardEZConnectResult.fromESP(result, deviceCount, devicesLeft));
+
+      if(devicesLeft <= 0){
+        if(onSuccess != null) onSuccess();
+        _stopEZConnect();
+      } else {
+        if(_ezConnectWatchdog.isActive) _ezConnectWatchdog.cancel();
+        _ezConnectWatchdog = Timer(timeoutDuration ?? Duration(seconds: 90), _setWatchdog);
+      }
     });
 
     //set timeout EZConnect
-    _ezConnectWatchdog = Timer(timeoutDuration ?? Duration(seconds: 90), (){
-      _stopEZConnect();
-      if(onTimeout != null) onTimeout();
-    });
+    _ezConnectWatchdog = Timer(timeoutDuration ?? Duration(seconds: 90), _setWatchdog);
 
     //finish starting the task
     if(onStart != null) onStart(ssid, bssid);
 
     isRunning = true;
+  }
+
+  void _setWatchdog(){
+    _stopEZConnect();
+    if(onTimeout != null) onTimeout();
   }
 
   void cancelEZConnect(){

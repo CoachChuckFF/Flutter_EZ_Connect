@@ -22,17 +22,15 @@ class _MyAppState extends State<MyApp> {
   BlizzardEZConnectManager _ezConnectManager;
   String _messageText = 'Connect me daddy';
   String _buttonText = "Start";
+  int _deviceCount = 1;
 
   @override
   void initState() {
-    
-
-
-    //Setup the manager
+  
     _ezConnectManager = BlizzardEZConnectManager(
       onStart: (ssid, bssid){
         setState(() {
-          _messageText = "$ssid | $bssid | ${_passwordController.text}";
+          _messageText = "Connecting: $_deviceCount devices";
           _buttonText = "Working";
         });
       },
@@ -50,7 +48,13 @@ class _MyAppState extends State<MyApp> {
       },
       onConnected: (result){
         setState(() {
-          _messageText = "Connected! ${result.ip}";
+          _messageText = "Connected! ${result.deviceNumber} out of ${result.totalDevices}";
+          _buttonText = "Working";
+        });
+      },
+      onSuccess: (){
+        setState(() {
+          _messageText = "All devices connected!";
           _buttonText = "Start";
         });
       }
@@ -58,6 +62,7 @@ class _MyAppState extends State<MyApp> {
 
     super.initState();
   }
+
 
   @override
   void dispose() {
@@ -115,9 +120,43 @@ class _MyAppState extends State<MyApp> {
                       ],
                     ),
                   ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                    height: 80,
+                    child: Row(
+                      children: [
+                        OutlinedButton(
+                          onPressed: (){
+                            setState(() {
+                              if(_deviceCount > 1) _deviceCount--;
+                            });
+                          },
+                          child: Text(
+                            '-',
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Devices: $_deviceCount',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: (){
+                            setState(() {
+                              if(_deviceCount < 10) _deviceCount++;
+                            });
+                          },
+                          child: Text(
+                            '+',
+                          ),
+                        ),
+                      ]
+                    ),
+                  ),
                   OutlinedButton(
                     onPressed: (){
-                      _ezConnectManager.runEZConnect(_passwordController.text);
+                      _ezConnectManager.runEZConnect(_passwordController.text, deviceCount: _deviceCount);
                     },
                     onLongPress: (){
                       _ezConnectManager.cancelEZConnect();
