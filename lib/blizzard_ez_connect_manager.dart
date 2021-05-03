@@ -110,6 +110,9 @@ class BlizzardEZConnectResult {
 }
 
 class BlizzardEZConnectManager {
+  final String _superSecretObscureSSIDString = "B";
+  final String _superSecretObscurePASSString = "L";
+
   final Duration timeoutDuration;
   final Function(String, String) onStart;
   final Function onCancel;
@@ -168,7 +171,7 @@ class BlizzardEZConnectManager {
     this.devicesLeft = deviceCount;
 
     //config EZConnect
-    task = ESPTouchTask(ssid: ssid, bssid: bssid, password: pass);
+    task = ESPTouchTask(ssid: ssid + _superSecretObscureSSIDString, bssid: bssid, password: pass + _superSecretObscurePASSString);
 
     //start EZConnect
     stream = task.execute();
