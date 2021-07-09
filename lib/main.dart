@@ -1,14 +1,12 @@
-import 'dart:async';
 
-import 'package:esptouch_flutter/esptouch_flutter.dart';
 import 'package:wifi_info_flutter/wifi_info_flutter.dart';
 import 'blizzard_ez_connect_manager.dart';
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:location_permissions/location_permissions.dart';
 
 void main() => runApp(MyApp());
 
-const hc_pass = 'destroyer';
+const hc_pass = '';
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
@@ -20,13 +18,30 @@ class _MyAppState extends State<MyApp> {
   TextEditingController _passwordController = TextEditingController(text: hc_pass);
   FocusNode _passwordFocus = FocusNode();
   BlizzardEZConnectManager _ezConnectManager;
-  String _messageText = 'Connect me daddy';
+  String _messageText = 'Enter WiFi Password';
   String _buttonText = "Start";
   int _deviceCount = 1;
 
   @override
   void initState() {
-  
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocationPermissions().requestPermissions().then((permissionLevel) {
+        if(permissionLevel == PermissionStatus.granted || permissionLevel == PermissionStatus.restricted) {
+          WifiInfo().getWifiName().then((ssid) {
+            setState(() {
+              _messageText = "Enter password for " + ssid;
+              _buttonText = "Connect";
+            });
+          });
+        } else {
+          setState(() {
+            _messageText = "Location permissions required for EZ Connect.";
+            _buttonText = "Insufficient Permissions";
+          });
+        }
+      });
+    });
+
     _ezConnectManager = BlizzardEZConnectManager(
       onStart: (ssid, bssid){
         setState(() {
@@ -36,7 +51,7 @@ class _MyAppState extends State<MyApp> {
       },
       onCancel: (){
         setState(() {
-          _messageText = "Cancelled";
+          _messageText = "Canceled";
           _buttonText = "Start";
         });
       },

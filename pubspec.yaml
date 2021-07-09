@@ -31,6 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   esptouch_flutter: ^0.2.4
   wifi_info_flutter: ^2.0.0
+  location_permissions: ^3.0.0
 
 
 dev_dependencies:
